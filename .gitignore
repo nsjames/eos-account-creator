@@ -51,7 +51,6 @@ tmp
 *.db
 *.dbf
 *.fods
-*.json
 *.ods
 *.odt
 *.ots

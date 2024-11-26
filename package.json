@@ -1,0 +1,51 @@
+{
+  "name": "@eosnetwork/account-creator",
+  "version": "0.0.1",
+  "description": "EOS Account Creator",
+  "author": {
+    "name": "EOS Network Foundation",
+    "email": "webmaster@eosnetwork.com",
+    "url": "https://eosnetwork.com"
+  },
+  "license": "MIT",
+  "private": true,
+  "engineStrict": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "preview": "vite preview"
+  },
+  "files": [
+    "build"
+  ],
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.0.0",
+    "@sveltejs/adapter-netlify": "^4.3.1",
+    "@sveltejs/adapter-static": "^3.0.2",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@teapotlabs/identeapots": "^1.0.8",
+    "@wharfkit/antelope": "^1.0.7",
+    "@wharfkit/session": "^1.3.1",
+    "@wharfkit/transact-plugin-resource-provider": "^1.1.1",
+    "@wharfkit/wallet-plugin-anchor": "^1.3.4",
+    "@wharfkit/wallet-plugin-scatter": "^1.3.1",
+    "@wharfkit/wallet-plugin-tokenpocket": "^1.3.1",
+    "@wharfkit/wallet-plugin-wombat": "^1.3.1",
+    "@wharfkit/web-renderer": "^1.2.5",
+    "autoprefixer": "^10.4.16",
+    "chart.js": "^4.4.3",
+    "postcss": "^8.4.33",
+    "sass": "^1.77.5",
+    "svelte": "^4.2.7",
+    "svelte-check": "^3.6.0",
+    "svelte-confetti": "^2.0.1",
+    "svelte-sonner": "^0.3.24",
+    "tailwindcss": "^3.4.1",
+    "tslib": "^2.4.1",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.3",
+    "@wharfkit/contract": "^1.1.5"
+  },
+  "type": "module"
+}
