@@ -43,7 +43,6 @@ deps
 dist
 node_modules
 out
-package
 target
 tmp
 
