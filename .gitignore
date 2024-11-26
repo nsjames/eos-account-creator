@@ -46,24 +46,6 @@ out
 target
 tmp
 
-# data files
-*.csv
-*.db
-*.dbf
-*.fods
-*.ods
-*.odt
-*.ots
-*.sqlite
-*.tsv
-*.uos
-*.xls
-*.xlsm
-*.xlsx
-*.xlt
-*.xltx
-*.xml
-
 # editor files
 .ccls-cache
 .idea
