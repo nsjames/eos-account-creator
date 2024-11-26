@@ -8,6 +8,8 @@ CONTRACT mycontract : public contract {
     public:
         using contract::contract;
 
+	static const int64_t ACCOUNT_COST = 3000;
+	static const int64_t OPEN_TOKEN_COST = 260;
 
     // Copied from https://github.com/bitcoin/bitcoin
     /** All alphanumeric characters except for "0", "I", "O", and "l" */
@@ -148,14 +150,24 @@ CONTRACT mycontract : public contract {
 
     typedef eosio::multi_index<"rammarket"_n, rammarket> ramMarket;
 
-    asset getRamCost(uint64_t bytes = 3100){
+
+	int64_t get_bancor_input( int64_t out_reserve, int64_t inp_reserve, int64_t out ){
+      const double ob = out_reserve;
+      const double ib = inp_reserve;
+      int64_t inp = (ib * out) / (ob - out);
+      if ( inp < 0 ) inp = 0;
+      return inp;
+   }
+
+    asset getRamCost(int64_t bytes){
         ramMarket market(name("eosio"), name("eosio").value);
         auto ramData = market.find(S_RAM.raw());
         check(ramData != market.end(), "Could not get RAM info");
 
         uint64_t base = ramData->base.balance.amount;
         uint64_t quote = ramData->quote.balance.amount;
-        return asset((((double)quote / base))*bytes, S_SYS);
+        uint64_t cost = get_bancor_input(base, quote, bytes);
+        return asset(cost / double(0.995), S_SYS);
     }
 
 	[[eosio::on_notify("eosio.token::transfer")]]
@@ -209,27 +221,25 @@ CONTRACT mycontract : public contract {
 	        new_account
 	    ).send();
 
-	    asset ram = getRamCost();
-	    asset openTokenCost = getRamCost(300);
+	    asset openTokenCost = getRamCost(OPEN_TOKEN_COST);
+	    asset ram = getRamCost(ACCOUNT_COST);
         asset minimumCost = ram + openTokenCost;
-
 
         check(quantity >= minimumCost, "You did not send enough EOS to cover account creation costs");
 
-		// Buy ram for new account
+	    // transfer ram to new account
 	    action(
-	        permission_level{ _self, "active"_n },
-	        name("eosio"),
-	        name("buyram"),
-	        make_tuple(_self, account, ram)
-	    ).send();
+            permission_level{ _self, "active"_n },
+            name("eosio"),
+            name("buyrambytes"),
+            make_tuple(_self, _self, ACCOUNT_COST + OPEN_TOKEN_COST)
+        ).send();
 
-	    // Buy ram for account opener (used to open balance for user account)
 	    action(
 	        permission_level{ _self, "active"_n },
 	        name("eosio"),
-	        name("buyram"),
-	        make_tuple(_self, _self, openTokenCost)
+	        name("ramtransfer"),
+	        make_tuple(_self, account, ACCOUNT_COST, std::string("Account creation"))
 	    ).send();
 
 	    // open balance for user account
@@ -240,8 +250,17 @@ CONTRACT mycontract : public contract {
 	        make_tuple(account, S_SYS, _self)
 	    ).send();
 
+	    action(
+	        permission_level{ _self, "active"_n },
+	        _self,
+	        name("logramcost"),
+	        make_tuple(minimumCost)
+	    ).send();
+
 	    // send back the remaining EOS
-        asset excess = quantity - ram;
+	    // fees for ram
+
+        asset excess = quantity - minimumCost;
         if(excess.amount > 0){
 			action(
 				permission_level{ _self, "active"_n },
@@ -249,12 +268,20 @@ CONTRACT mycontract : public contract {
 				name("transfer"),
 				make_tuple(_self, account, excess, string("Overspent on account creation"))
 			).send();
+
+			action(
+				permission_level{ _self, "active"_n },
+				_self,
+				name("logexcess"),
+				make_tuple(excess)
+			).send();
 		}
 	}
 
 	[[eosio::action]] asset estimatecost(){
-		asset ram = getRamCost();
-        asset openTokenCost = getRamCost(300);
-        return ram + openTokenCost;
+        return getRamCost(ACCOUNT_COST + OPEN_TOKEN_COST);
 	}
+
+	ACTION logramcost(asset amount){}
+	ACTION logexcess(asset amount){}
 };
