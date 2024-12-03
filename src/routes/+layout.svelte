@@ -23,7 +23,7 @@
     <meta property="og:site_name" content={title} />
 </svelte:head>
 
-<!--<GoogleAnalytics />-->
+<GoogleAnalytics />
 
 <Toaster />
 

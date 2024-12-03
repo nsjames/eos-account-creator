@@ -2,7 +2,7 @@
     import { page } from '$app/stores'
     import {onMount} from "svelte";
 
-    const GTAG = 'G-735M0KH4ZY';
+    const GTAG = 'G-D63LEFJ5DG';
 
     onMount(() => {
         const script = document.createElement('script')

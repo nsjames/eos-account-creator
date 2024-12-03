@@ -1,6 +1,7 @@
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
 #include <eosio/crypto.hpp>
+#include <eosio/system.hpp>
 using namespace eosio;
 using namespace std;
 
@@ -242,23 +243,12 @@ CONTRACT mycontract : public contract {
 	        make_tuple(_self, account, ACCOUNT_COST, std::string("Account creation"))
 	    ).send();
 
-	    // open balance for user account
 	    action(
 	        permission_level{ _self, "active"_n },
 	        name("eosio.token"),
 	        name("open"),
 	        make_tuple(account, S_SYS, _self)
 	    ).send();
-
-	    action(
-	        permission_level{ _self, "active"_n },
-	        _self,
-	        name("logramcost"),
-	        make_tuple(minimumCost)
-	    ).send();
-
-	    // send back the remaining EOS
-	    // fees for ram
 
         asset excess = quantity - minimumCost;
         if(excess.amount > 0){
@@ -268,20 +258,24 @@ CONTRACT mycontract : public contract {
 				name("transfer"),
 				make_tuple(_self, account, excess, string("Overspent on account creation"))
 			).send();
-
-			action(
-				permission_level{ _self, "active"_n },
-				_self,
-				name("logexcess"),
-				make_tuple(excess)
-			).send();
 		}
+
+		// creation date
+		auto now = current_time_point().time_since_epoch().count();
+
+		action(
+			permission_level{ _self, "active"_n },
+			_self,
+			name("logcreation"),
+			make_tuple(account, excess, minimumCost, now)
+		).send();
 	}
 
 	[[eosio::action]] asset estimatecost(){
         return getRamCost(ACCOUNT_COST + OPEN_TOKEN_COST);
 	}
 
-	ACTION logramcost(asset amount){}
-	ACTION logexcess(asset amount){}
+	ACTION logcreation(name account, asset excess, asset ram, uint64_t timestamp){
+		require_auth(_self);
+	}
 };
